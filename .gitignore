@@ -15,6 +15,9 @@ dist/
 *config.json
 
 errors/
-outpus/
+outputs/
 
 .python-version
+
+# for dataset
+dataset/*Dataset*
