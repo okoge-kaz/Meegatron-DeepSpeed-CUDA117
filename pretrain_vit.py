@@ -23,6 +23,7 @@ from megatron.model.vit_model import VitModel
 from megatron.training import pretrain
 from megatron.utils import average_losses_across_data_parallel_group
 
+
 def model_provider():
     """Build the model."""
 
@@ -31,6 +32,7 @@ def model_provider():
 
     model = VitModel(num_classes=args.num_classes)
     return model
+
 
 def get_batch(data_iterator):
     """Build the batch."""
@@ -41,6 +43,7 @@ def get_batch(data_iterator):
     labels = data[1].to(get_accelerator().device_name())
 
     return images, labels
+
 
 def forward_step(data_iterator, model, input_tensor):
     """Forward step."""
@@ -72,9 +75,7 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
     """Build train, valid, and test datasets."""
     args = get_args()
 
-    print_rank_0(
-        "> building train, validation, and test datasets " "for VIT ..."
-    )
+    print_rank_0("> building train, validation, and test datasets " "for VIT ...")
     train_ds, valid_ds = build_train_valid_datasets(data_path=args.data_path)
     print_rank_0("> finished creating VIT datasets ...")
 
@@ -82,10 +83,9 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
 
 
 if __name__ == "__main__":
-
     pretrain(
         train_valid_test_datasets_provider,
         model_provider,
         forward_step,
-        args_defaults={'dataloader_type': 'cyclic'}
+        args_defaults={"dataloader_type": "cyclic"},
     )

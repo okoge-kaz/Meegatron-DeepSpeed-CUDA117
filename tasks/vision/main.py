@@ -39,8 +39,7 @@ def get_tasks_args(parser):
         "--epochs",
         type=int,
         default=None,
-        help="Number of finetunning epochs. Zero results in "
-        "evaluation only.",
+        help="Number of finetunning epochs. Zero results in " "evaluation only.",
     )
     group.add_argument(
         "--pretrained-checkpoint",
@@ -58,7 +57,6 @@ def get_tasks_args(parser):
 
 
 if __name__ == "__main__":
-
     initialize_megatron(extra_args_provider=get_tasks_args)
     args = get_args()
     main()

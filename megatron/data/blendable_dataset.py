@@ -25,10 +25,7 @@ from megatron import mpu
 
 
 class BlendableDataset(torch.utils.data.Dataset):
-
-
     def __init__(self, datasets, weights):
-
         self.datasets = datasets
         num_datasets = len(datasets)
         assert num_datasets == len(weights)
@@ -50,17 +47,22 @@ class BlendableDataset(torch.utils.data.Dataset):
         self.dataset_sample_index = np.zeros(self.size, dtype=np.int64)
 
         from megatron.data import helpers
-        helpers.build_blending_indices(self.dataset_index,
-                                       self.dataset_sample_index,
-                                       weights, num_datasets, self.size,
-                                       torch.distributed.get_rank() == 0)
-        print_rank_0('> elapsed time for building blendable dataset indices: '
-                     '{:.2f} (sec)'.format(time.time() - start_time))
 
+        helpers.build_blending_indices(
+            self.dataset_index,
+            self.dataset_sample_index,
+            weights,
+            num_datasets,
+            self.size,
+            torch.distributed.get_rank() == 0,
+        )
+        print_rank_0(
+            "> elapsed time for building blendable dataset indices: "
+            "{:.2f} (sec)".format(time.time() - start_time)
+        )
 
     def __len__(self):
         return self.size
-
 
     def __getitem__(self, idx):
         dataset_idx = self.dataset_index[idx]

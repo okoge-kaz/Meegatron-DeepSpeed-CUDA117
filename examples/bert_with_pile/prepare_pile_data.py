@@ -3,9 +3,12 @@ import sys
 import time
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                             os.path.pardir,os.path.pardir)))
+
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
+)
 from megatron.data import indexed_dataset
+
 
 def pile_download(download_url, file_path, i):
     start = time.time()
@@ -15,6 +18,7 @@ def pile_download(download_url, file_path, i):
         os.system(f"wget -P {file_path} {download_path}")
         print(f"Finished downloading chunk {i} in {time.time() - start} sec")
 
+
 def pile_decompress(download_url, file_path, i):
     zstd_file_path = f"{file_path}{i:02}.jsonl.zst"
     output_path = f"{file_path}{i:02}.jsonl"
@@ -22,12 +26,13 @@ def pile_decompress(download_url, file_path, i):
         if not os.path.exists(zstd_file_path):
             pile_download(download_url, file_path, i)
         start = time.time()
-        with open(zstd_file_path, 'rb') as compressed:
+        with open(zstd_file_path, "rb") as compressed:
             decomp = zstandard.ZstdDecompressor()
-            with open(output_path, 'wb') as destination:
+            with open(output_path, "wb") as destination:
                 decomp.copy_stream(compressed, destination)
         os.remove(zstd_file_path)
         print(f"Finished decompressing chunk {i} in {time.time() - start} sec")
+
 
 def pile_preprocess(download_url, file_path, vocab_file, num_workers, i):
     json_file_path = f"{file_path}{i:02}.jsonl"
@@ -49,17 +54,20 @@ def pile_preprocess(download_url, file_path, vocab_file, num_workers, i):
         # incomplete output and user shall retry with smaller num_workers.
         # Our experience show that chunk 6, 7, 9, 17, 18, 20, 21, 24, 27
         # particularly have large memory usage.
-        if os.system(cmd) == 0: # Success
+        if os.system(cmd) == 0:  # Success
             os.remove(json_file_path)
         else:
-            print(f"Error: chunk {i} preprocessing got error, delete \
+            print(
+                f"Error: chunk {i} preprocessing got error, delete \
                     incomplete output. If MemoryError appeared, please retry \
-                    with num_workers smaller than {num_workers}.")
+                    with num_workers smaller than {num_workers}."
+            )
             if os.path.exists(f"{output_prefix}_text_sentence.idx"):
                 os.remove(f"{output_prefix}_text_sentence.idx")
             if os.path.exists(f"{output_prefix}_text_sentence.bin"):
                 os.remove(f"{output_prefix}_text_sentence.bin")
         print(f"Finished preprocessing chunk {i} in {time.time() - start} sec")
+
 
 def pile_merge(file_path):
     start = time.time()
@@ -70,8 +78,8 @@ def pile_merge(file_path):
         assert os.path.exists(f"{output_prefix}_text_sentence.idx")
         assert os.path.exists(f"{output_prefix}_text_sentence.bin")
     builder = indexed_dataset.make_builder(
-        f"{file_path}pile_bert_train_text_sentence.bin", impl="mmap",
-        vocab_size=vocab_size)
+        f"{file_path}pile_bert_train_text_sentence.bin", impl="mmap", vocab_size=vocab_size
+    )
     for i in range(num_chunks):
         chunk_file = f"{file_path}pile_bert_train_{i:02}_text_sentence"
         print(f"Merging file {chunk_file}")
@@ -86,7 +94,8 @@ def pile_merge(file_path):
     #     os.remove(f"{output_prefix}_text_sentence.idx")
     #     os.remove(f"{output_prefix}_text_sentence.bin")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Path to download and store all the output files during the whole process.
     # Estimated max storage usage would be around 1.6 TB (or 780GB if skip the
     # final merge). Memory usage is proportional to the num_workers below (can
@@ -119,7 +128,9 @@ if __name__ == '__main__':
         # if this url does not work.
         download_url = "https://the-eye.eu/public/AI/pile/train/"
         vocab_file = "bert-large-uncased-vocab.txt"
-        vocab_url = "https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased-vocab.txt"
+        vocab_url = (
+            "https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased-vocab.txt"
+        )
         if not os.path.exists(vocab_file):
             os.system(f"wget {vocab_url}")
         os.makedirs(file_path, exist_ok=True)

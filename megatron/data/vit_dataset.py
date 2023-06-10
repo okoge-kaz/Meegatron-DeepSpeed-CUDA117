@@ -19,7 +19,6 @@ from megatron.data.autoaugment import ImageNetPolicy
 
 
 def build_train_valid_datasets(data_path, crop_size=224, color_jitter=True):
-
     # training dataset
     train_data_path = os.path.join(data_path[0], "train")
     normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
@@ -28,17 +27,11 @@ def build_train_valid_datasets(data_path, crop_size=224, color_jitter=True):
         transforms.RandomHorizontalFlip(),
     ]
     if color_jitter:
-        process += [
-            transforms.ColorJitter(
-                brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1
-            )
-        ]
+        process += [transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)]
     fp16_t = transforms.ConvertImageDtype(torch.half)
     process += [ImageNetPolicy(), transforms.ToTensor(), normalize, fp16_t]
     transform_train = transforms.Compose(process)
-    train_data = datasets.ImageFolder(
-        root=train_data_path, transform=transform_train
-    )
+    train_data = datasets.ImageFolder(root=train_data_path, transform=transform_train)
 
     # validation dataset
     val_data_path = os.path.join(data_path[0], "val")
@@ -48,11 +41,9 @@ def build_train_valid_datasets(data_path, crop_size=224, color_jitter=True):
             transforms.CenterCrop(crop_size),
             transforms.ToTensor(),
             normalize,
-            fp16_t
+            fp16_t,
         ]
     )
-    val_data = datasets.ImageFolder(
-        root=val_data_path, transform=transform_val
-    )
+    val_data = datasets.ImageFolder(root=val_data_path, transform=transform_val)
 
     return train_data, val_data

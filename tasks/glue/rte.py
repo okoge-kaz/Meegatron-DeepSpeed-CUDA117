@@ -20,46 +20,47 @@ from tasks.data_utils import clean_text
 from .data import GLUEAbstractDataset
 
 
-LABELS = {'entailment': 0, 'not_entailment': 1}
+LABELS = {"entailment": 0, "not_entailment": 1}
 
 
 class RTEDataset(GLUEAbstractDataset):
-
-    def __init__(self, name, datapaths, tokenizer, max_seq_length,
-                 test_label='entailment'):
+    def __init__(self, name, datapaths, tokenizer, max_seq_length, test_label="entailment"):
         self.test_label = test_label
-        super().__init__('RTE', name, datapaths,
-                         tokenizer, max_seq_length)
+        super().__init__("RTE", name, datapaths, tokenizer, max_seq_length)
 
     def process_samples_from_single_path(self, filename):
-        """"Implement abstract method."""
-        print_rank_0(' > Processing {} ...'.format(filename))
+        """ "Implement abstract method."""
+        print_rank_0(" > Processing {} ...".format(filename))
 
         samples = []
         total = 0
         first = True
         is_test = False
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             for line in f:
-                row = line.strip().split('\t')
+                row = line.strip().split("\t")
                 if first:
                     first = False
                     if len(row) == 3:
                         is_test = True
-                        print_rank_0('   reading {}, {}, and {} columns and '
-                                     'setting labels to {}'.format(
-                                         row[0].strip(), row[1].strip(),
-                                         row[2].strip(), self.test_label))
+                        print_rank_0(
+                            "   reading {}, {}, and {} columns and "
+                            "setting labels to {}".format(
+                                row[0].strip(), row[1].strip(), row[2].strip(), self.test_label
+                            )
+                        )
                     else:
                         assert len(row) == 4
-                        print_rank_0('    reading {}, {}, {}, and {} columns'
-                                     ' ...'.format(
-                                         row[0].strip(), row[1].strip(),
-                                         row[2].strip(), row[3].strip()))
+                        print_rank_0(
+                            "    reading {}, {}, {}, and {} columns"
+                            " ...".format(
+                                row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip()
+                            )
+                        )
                     continue
 
                 if is_test:
-                    assert len(row) == 3, 'expected length 3: {}'.format(row)
+                    assert len(row) == 3, "expected length 3: {}".format(row)
                     uid = int(row[0].strip())
                     text_a = clean_text(row[1].strip())
                     text_b = clean_text(row[2].strip())
@@ -73,29 +74,23 @@ class RTEDataset(GLUEAbstractDataset):
                         text_b = clean_text(row[2].strip())
                         label = row[-1].strip()
                     else:
-                        print_rank_0('***WARNING*** index error, '
-                                     'skipping: {}'.format(row))
+                        print_rank_0("***WARNING*** index error, " "skipping: {}".format(row))
                         continue
                     if len(text_a) == 0:
-                        print_rank_0('***WARNING*** zero length a, '
-                                     'skipping: {}'.format(row))
+                        print_rank_0("***WARNING*** zero length a, " "skipping: {}".format(row))
                         continue
                     if len(text_b) == 0:
-                        print_rank_0('***WARNING*** zero length b, '
-                                     'skipping: {}'.format(row))
+                        print_rank_0("***WARNING*** zero length b, " "skipping: {}".format(row))
                         continue
                 assert label in LABELS
                 assert uid >= 0
 
-                sample = {'uid': uid,
-                          'text_a': text_a,
-                          'text_b': text_b,
-                          'label': LABELS[label]}
+                sample = {"uid": uid, "text_a": text_a, "text_b": text_b, "label": LABELS[label]}
                 total += 1
                 samples.append(sample)
 
                 if total % 50000 == 0:
-                    print_rank_0('  > processed {} so far ...'.format(total))
+                    print_rank_0("  > processed {} so far ...".format(total))
 
-        print_rank_0(' >> processed {} samples.'.format(len(samples)))
+        print_rank_0(" >> processed {} samples.".format(len(samples)))
         return samples

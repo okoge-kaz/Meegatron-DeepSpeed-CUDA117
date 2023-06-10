@@ -25,6 +25,7 @@ from tasks.vision.finetune_utils import process_batch
 from torchvision import datasets, transforms
 from deepspeed.accelerator import get_accelerator
 
+
 def accuracy_func_provider():
     """Provide function that calculates accuracies."""
     args = get_args()

@@ -25,12 +25,8 @@ def add_text_generate_args(parser):
     """Text generation arguments."""
     group = parser.add_argument_group(title="text generation")
 
-    group.add_argument(
-        "--temperature", type=float, default=1.0, help="Sampling temperature."
-    )
-    group.add_argument(
-        "--greedy", action="store_true", default=False, help="Use greedy sampling."
-    )
+    group.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature.")
+    group.add_argument("--greedy", action="store_true", default=False, help="Use greedy sampling.")
     group.add_argument("--top_p", type=float, default=0.0, help="Top p sampling.")
     group.add_argument("--top_k", type=int, default=0, help="Top k sampling.")
     group.add_argument(
@@ -43,8 +39,7 @@ def add_text_generate_args(parser):
         "--sample-input-file",
         type=str,
         default=None,
-        help="Get input from file instead of interactive mode, "
-        "each line is an input.",
+        help="Get input from file instead of interactive mode, " "each line is an input.",
     )
     group.add_argument(
         "--sample-output-file",
@@ -59,18 +54,14 @@ def add_text_generate_args(parser):
         help="Number of samples to generate unconditionally, "
         "defaults to 0 and interactive conditional sampling",
     )
-    group.add_argument(
-        "--genfile", type=str, help="Output file when generating unconditionally"
-    )
+    group.add_argument("--genfile", type=str, help="Output file when generating unconditionally")
     group.add_argument(
         "--recompute",
         action="store_true",
         help="During generation recompute all attention "
         "instead of using previously computed keys/values.",
     )
-    group.add_argument(
-        "--context-tokens", type=str, default="DeepSpeed is the greatest"
-    )
+    group.add_argument("--context-tokens", type=str, default="DeepSpeed is the greatest")
     group.add_argument("--max-tokens", type=int, default=50)
 
     return parser
