@@ -21,3 +21,6 @@ outputs/
 
 # for dataset
 dataset/*Dataset*
+
+# for wandb
+wandb/
