@@ -24,3 +24,6 @@ dataset/*Dataset*
 
 # for wandb
 wandb/
+
+# check point
+checkpoints/
