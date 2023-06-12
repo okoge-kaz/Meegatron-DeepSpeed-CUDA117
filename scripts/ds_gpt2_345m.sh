@@ -16,7 +16,7 @@ MASTER_PORT=$((10000 + ($SLURM_JOBID % 50000)))
 
 # Dataset path & checkpoint path
 DATASET_PATH=dataset/BookCorpusDataset_text_document
-CHECKPOINT_PATH=checkpoints/gpt2_345m
+CHECKPOINT_PATH=checkpoints/gpt2_345m/
 mkdir -p ${CHECKPOINT_PATH}
 
 VOCAB_PATH=dataset/gpt2-vocab.json
