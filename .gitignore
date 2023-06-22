@@ -27,3 +27,7 @@ wandb/
 
 # check point
 checkpoints/
+
+# gpt-fugaku
+dataset/wikipedia
+samples.json
