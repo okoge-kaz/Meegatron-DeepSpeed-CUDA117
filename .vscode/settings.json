@@ -4,12 +4,17 @@
     "AUTORESUME",
     "biencoder",
     "checkpointing",
+    "compatiblity",
     "deepspeed",
     "embedder",
     "ltor",
     "megatron",
     "microbatches",
     "Pretrain",
-    "TENSORBOARD"
+    "pretraining",
+    "rampup",
+    "seqlen",
+    "TENSORBOARD",
+    "tflops"
   ]
 }
