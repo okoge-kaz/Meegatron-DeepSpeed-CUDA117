@@ -1,4 +1,20 @@
-CHECKPOINT_PATH=checkpoints/124m_dp1024
+#!/bin/bash
+#YBATCH -r a100_1
+#SBATCH --job-name=text-generation
+#SBATCH --ntasks=1
+#SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
+#SBATCH --output outputs/%j.out
+#SBATCH --error errors/%j.err
+. /etc/profile.d/modules.sh
+module load cuda/11.7
+module load cudnn/cuda-11.x/8.9.0
+module load nccl/cuda-11.7/2.14.3
+module load openmpi/4.0.5
+
+source .env/bin/activate
+
+CHECKPOINT_PATH=checkpoints/gpt-fugaku/350m_dp512
 VOCAB_FILE=gpt2-vocab.json
 MERGE_FILE=gpt2-merges.txt
 
@@ -10,11 +26,11 @@ OUTPUT_FILE=samples.json
 INPUT_PREFIX=dataset
 
 python tools/generate_samples_gpt.py \
-  --num-layers 12 \
-  --hidden-size 768 \
-  --num-attention-heads 12 \
-  --micro-batch-size 1 \
-  --global-batch-size 1024 \
+  --num-layers 24 \
+  --hidden-size 1024 \
+  --num-attention-heads 16 \
+  --micro-batch-size 64 \
+  --global-batch-size 512 \
   --seq-length 1024 \
   --max-position-embeddings 1024 \
   --vocab-file $INPUT_PREFIX/$VOCAB_FILE \
