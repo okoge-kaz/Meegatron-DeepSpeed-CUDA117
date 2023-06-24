@@ -389,7 +389,7 @@ def generate_and_write_samples_unconditional(
             single_token_latency=single_token_latency,
         ):
             if mpu.is_pipeline_last_stage() and mpu.get_tensor_model_parallel_rank() == 0:
-                f.write(json.dumps(datum) + "\n")
+                f.write(json.dumps(datum, ensure_ascii=False) + "\n")
 
 
 def pad_batch(batch, pad_id, args):
