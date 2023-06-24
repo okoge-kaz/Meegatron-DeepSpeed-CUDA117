@@ -1106,6 +1106,8 @@ def training_log(
         samples_per_sec, tflops, approx_parameters_in_billions = throughput_calculator(
             model, args, elapsed_time, total_iterations
         )
+        wandb_stats["statistics/samples_per_sec"] = samples_per_sec
+        wandb_stats["statistics/tflops"] = tflops
 
         # Compute throughput.
         samples_per_sec_per_replica = samples_per_sec / args.data_parallel_size
