@@ -1,5 +1,5 @@
 #!/bin/bash
-#YBATCH -r a100_8
+#YBATCH -r dgx-a100_8
 #SBATCH --job-name=ds
 #SBATCH --time=7-00:00:00
 #SBATCH --output outputs/%j.out
@@ -9,6 +9,8 @@ module load cuda/11.7
 module load cudnn/cuda-11.x/8.9.0
 module load nccl/cuda-11.7/2.14.3
 module load openmpi/4.0.5
+
+source .env/bin/activate
 
 # muti-node settings
 MASTER_NODE=$(/usr/sbin/ip a show | grep inet | grep 192.168.205 | head -1 | cut -d " " -f 6 | cut -d "/" -f 1)
