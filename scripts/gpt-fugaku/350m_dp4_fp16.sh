@@ -1,9 +1,9 @@
 #!/bin/bash
-#YBATCH -r a100_8
+#YBATCH -r dgx-a100_4
 #SBATCH --job-name=gpt
-#SBATCH --ntasks=8
+#SBATCH --ntasks=4
 #SBATCH --nodes=1
-#SBATCH --time=7-00:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --output outputs/%j.out
 #SBATCH --error errors/%j.err
 . /etc/profile.d/modules.sh
@@ -15,7 +15,7 @@ module load openmpi/4.0.5
 # Change for multinode config
 source .env/bin/activate
 
-GPU_PER_NODE=8
+GPU_PER_NODE=4
 NNODES=1
 WORLD_SIZE=$(($GPU_PER_NODE * $NNODES))
 NODE_RANK=0
@@ -23,7 +23,7 @@ NODE_RANK=0
 MASTER_ADDR=localhost
 MASTER_PORT=$((10000 + ($SLURM_JOBID % 50000)))
 
-CHECKPOINT_PATH=checkpoints/gpt-fugaku/350m_dp512_fp32/
+CHECKPOINT_PATH=checkpoints/gpt-fugaku/350m_dp4_fp16/
 INPUT_PREFIX=dataset
 VOCAB_FILE=gpt2-vocab.json
 MERGE_FILE=gpt2-merges.txt
@@ -33,7 +33,7 @@ TENSORBOARD_ARGS="--tensorboard-dir experiments/tensorboard"
 mkdir -p $CHECKPOINT_PATH
 mkdir -p experiments/tensorboard
 
-DATA_PARALLEL_SIZE=8
+DATA_PARALLEL_SIZE=4
 
 PIPELINE_MODEL_PARALLEL_SIZE=1
 TENSOR_MODEL_PARALLEL_SIZE=1
@@ -48,8 +48,8 @@ python -m torch.distributed.launch $DISTRIBUTED_ARGS \
   --num-layers 24 \
   --hidden-size 1024 \
   --num-attention-heads 16 \
-  --micro-batch-size 64 \
-  --global-batch-size 512 \
+  --micro-batch-size 1 \
+  --global-batch-size 4 \
   --seq-length 1024 \
   --max-position-embeddings 1024 \
   --train-iters 500000 \
@@ -73,9 +73,10 @@ python -m torch.distributed.launch $DISTRIBUTED_ARGS \
   --eval-interval 100 \
   --eval-iters 10 \
   --checkpoint-activations \
+  --fp16 \
   $PARALLEL_ARGS \
   $TENSORBOARD_ARGS \
   --log-batch-size-to-tensorboard \
   --log-validation-ppl-to-tensorboard \
   --log-timers-to-tensorboard \
-  --wandb-name "gpu-ja-wiki-350m_dp512"
+  --wandb-name "gpu-ja-wiki-350m_dp4_fp16"
