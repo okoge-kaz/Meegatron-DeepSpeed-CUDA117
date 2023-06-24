@@ -2,7 +2,7 @@
 
 set -e
 
-bash dataset/merge_files.sh dataset/wikipedia/processed/ja/AA dataset/wikipedia/merged/ja ja_merged
+source .env/bin/activate
 
 export OUTDIR=dataset/wikipedia/binarized/gpt-2
 mkdir -p $OUTDIR
