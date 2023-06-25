@@ -13,7 +13,7 @@ source .env/bin/activate
 
 python dataset/wikidump_download.py
 
-basg dataset/merge_files.sh dataset/wikipedia/processed/en/AA dataset/wikipedia/merged/en en_merged_1
+bash dataset/merge_files.sh dataset/wikipedia/processed/en/AA dataset/wikipedia/merged/en en_merged_1
 
 bash dataset/merge_files.sh dataset/wikipedia/processed/en/AB dataset/wikipedia/merged/en en_merged_2
 
