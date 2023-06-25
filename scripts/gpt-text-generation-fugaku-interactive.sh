@@ -21,7 +21,7 @@ MERGE_FILE=gpt2-merges.txt
 MAX_OUTPUT_SEQUENCE_LENGTH=1024
 TEMPERATURE=1.0
 TOP_P=0.9
-NUMBER_OF_SAMPLES=10
+NUMBER_OF_SAMPLES=0
 OUTPUT_FILE="fugaku_350m_dp512.json"
 INPUT_PREFIX=dataset
 
@@ -42,6 +42,5 @@ python tools/generate_samples_gpt.py \
   --temperature $TEMPERATURE \
   --genfile $OUTPUT_FILE \
   --num-samples $NUMBER_OF_SAMPLES \
-  --sample-input-file prompt.txt \
   --top_p $TOP_P \
   --recompute
