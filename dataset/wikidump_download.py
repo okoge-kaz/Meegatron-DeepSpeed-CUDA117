@@ -38,7 +38,7 @@ def preprocess_data(config):
 
 
 if __name__ == "__main__":
-    for lang in ["ja"]:
+    for lang in ["ja", "en"]:
         config = Config(lang=lang)
         download_data(config)
         preprocess_data(config)
