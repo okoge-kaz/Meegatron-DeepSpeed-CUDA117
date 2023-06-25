@@ -14,7 +14,7 @@ module load openmpi/4.0.5
 
 source .env/bin/activate
 
-CHECKPOINT_PATH=checkpoints/gpt-fugaku/350m_dp4_fp32
+CHECKPOINT_PATH=checkpoints/gpt-fugaku-cpu/350m_dp4_fp32
 VOCAB_FILE=gpt2-vocab.json
 MERGE_FILE=gpt2-merges.txt
 
@@ -22,7 +22,7 @@ MAX_OUTPUT_SEQUENCE_LENGTH=1024
 TEMPERATURE=1.0
 TOP_P=0.9
 NUMBER_OF_SAMPLES=10
-OUTPUT_FILE="gpu_350m_dp4.json"
+OUTPUT_FILE="fugaku_350m_dp4.json"
 INPUT_PREFIX=dataset
 
 python tools/generate_samples_gpt.py \
