@@ -78,4 +78,4 @@ python -m torch.distributed.launch $DISTRIBUTED_ARGS \
   --log-batch-size-to-tensorboard \
   --log-validation-ppl-to-tensorboard \
   --log-timers-to-tensorboard \
-  --wandb-name "gpu-ja-wiki-117m_dp4_fp32"
+  --wandb-name "gpu-ja-wiki-123m_dp4_fp32"
