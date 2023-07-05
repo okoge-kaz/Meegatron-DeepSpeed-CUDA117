@@ -1,0 +1,20 @@
+{
+  "cSpell.words": [
+    "ADLR",
+    "AUTORESUME",
+    "biencoder",
+    "checkpointing",
+    "compatiblity",
+    "deepspeed",
+    "embedder",
+    "ltor",
+    "megatron",
+    "microbatches",
+    "Pretrain",
+    "pretraining",
+    "rampup",
+    "seqlen",
+    "TENSORBOARD",
+    "tflops"
+  ]
+}

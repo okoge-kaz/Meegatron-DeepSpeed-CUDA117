@@ -35,17 +35,16 @@ csv_file = results_file.replace("json", "csv")
 
 print(f"Converting {results_file} to {csv_file}")
 
-with io.open(results_file, 'r', encoding='utf-8') as f:
+with io.open(results_file, "r", encoding="utf-8") as f:
     results = json.load(f)
 
-with io.open(csv_file, 'w', encoding='utf-8') as f:
-
+with io.open(csv_file, "w", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(["task", "metric", "value", "err", "version"])
 
     versions = results["versions"]
 
-    for k,v in sorted(results["results"].items()):
+    for k, v in sorted(results["results"].items()):
         if k not in versions:
             versions[k] = -1
 
@@ -54,7 +53,9 @@ with io.open(csv_file, 'w', encoding='utf-8') as f:
         if "acc_norm" in v:
             writer.writerow([k, "acc_norm", v["acc_norm"], v["acc_norm_stderr"], versions[k]])
         if "f1" in v:
-            writer.writerow([k, "f1", v["f1"], v["f1_stderr"] if "f1_stderr" in v else "", versions[k]])
+            writer.writerow(
+                [k, "f1", v["f1"], v["f1_stderr"] if "f1_stderr" in v else "", versions[k]]
+            )
         # if "ppl" in v:
         #     writer.writerow([k, "ppl", v["ppl"], v["ppl_stderr"], versions[k]])
         # if "em" in v:

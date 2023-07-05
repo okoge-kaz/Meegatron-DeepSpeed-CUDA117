@@ -3,3 +3,6 @@ torch
 six
 regex
 numpy
+
+# for deepspeed
+deepspeed

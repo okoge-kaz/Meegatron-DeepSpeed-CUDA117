@@ -21,6 +21,7 @@ import sys
 from megatron import get_args
 from tasks.orqa.evaluate_utils import ORQAEvaluator
 
+
 def main():
     """
     Main program
@@ -37,4 +38,3 @@ def main():
 
     if args.qa_data_test is not None:
         evaluator.evaluate(args.qa_data_test, "TEST")
-

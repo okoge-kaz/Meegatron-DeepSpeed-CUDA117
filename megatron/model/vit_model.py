@@ -67,10 +67,9 @@ def twod_interpolate_position_embeddings_hook(
     unexpected_keys,
     error_msgs,
 ):
-
     args = get_args()
     num_patches_per_dim = args.img_dim // args.patch_dim
-    num_patches = num_patches_per_dim ** 2
+    num_patches = num_patches_per_dim**2
     seq_length = num_patches + 1
     hidden_size = args.hidden_size
 
@@ -96,9 +95,7 @@ def twod_interpolate_position_embeddings_hook(
             gs_new = int(math.sqrt(num_tok_new))
 
             input_param_grid = input_param_grid.transpose(0, 1).contiguous()
-            input_param_grid = input_param_grid.reshape(
-                (1, -1, gs_input, gs_input)
-            )
+            input_param_grid = input_param_grid.reshape((1, -1, gs_input, gs_input))
             input_param_grid = input_param_grid.float()
             scale_factor = gs_new / gs_input
 
@@ -112,10 +109,7 @@ def twod_interpolate_position_embeddings_hook(
 
             assert input_param_grid.shape[1] == hidden_size
             input_param = torch.cat((input_param_tok, input_param_grid), dim=0)
-            assert (
-                input_param.shape[0] == seq_length
-                and input_param.shape[1] == hidden_size
-            )
+            assert input_param.shape[0] == seq_length and input_param.shape[1] == hidden_size
 
             state_dict[key] = input_param
 
@@ -145,7 +139,7 @@ class VitModel(MegatronModule):
 
         assert self.img_dim % self.patch_dim == 0
         self.num_patches_per_dim = self.img_dim // self.patch_dim
-        self.num_patches = self.num_patches_per_dim ** 2
+        self.num_patches = self.num_patches_per_dim**2
         self.seq_length = self.num_patches + 1
         self.flatten_dim = self.patch_dim * self.patch_dim * args.num_channels
 
@@ -154,18 +148,14 @@ class VitModel(MegatronModule):
         torch.nn.init.zeros_(self.cls_token)
 
         # Linear encoder
-        self.linear_encoder = torch.nn.Linear(
-            self.flatten_dim, self.hidden_size
-        )
+        self.linear_encoder = torch.nn.Linear(self.flatten_dim, self.hidden_size)
 
         # embedding
-        self.position_embeddings = torch.nn.Embedding(
-            self.seq_length, self.hidden_size
+        self.position_embeddings = torch.nn.Embedding(self.seq_length, self.hidden_size)
+        init_method_normal(args.init_method_std)(self.position_embeddings.weight)
+        self.position_ids = (
+            torch.arange(self.seq_length).expand(1, -1).to(get_accelerator().device_name())
         )
-        init_method_normal(args.init_method_std)(
-            self.position_embeddings.weight
-        )
-        self.position_ids = torch.arange(self.seq_length).expand(1, -1).to(get_accelerator().device_name())
 
         self.position_embeddings._register_load_state_dict_pre_hook(
             twod_interpolate_position_embeddings_hook
@@ -174,17 +164,13 @@ class VitModel(MegatronModule):
         self.embedding_dropout = torch.nn.Dropout(args.hidden_dropout)
 
         # Transformer
-        self.transformer = ParallelTransformer(
-            self.init_method, self.scaled_init_method
-        )
+        self.transformer = ParallelTransformer(self.init_method, self.scaled_init_method)
 
         # MLP head
         if not self.finetune:
             self.mlp_head = VitMlpHead(self.hidden_size, self.num_classes)
         else:
-            self.class_head = get_linear_layer(
-                self.hidden_size, num_classes, torch.nn.init.zeros_
-            )
+            self.class_head = get_linear_layer(self.hidden_size, num_classes, torch.nn.init.zeros_)
 
     def forward(self, x):
         x = einops.rearrange(

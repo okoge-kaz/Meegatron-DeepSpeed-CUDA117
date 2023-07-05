@@ -29,45 +29,44 @@ fused_mix_prec_layer_norm_cuda = None
 
 
 class FusedLayerNormAffineFunction(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input, weight, bias, normalized_shape, eps):
+        ctx.normalized_shape = normalized_shape
+        ctx.eps = eps
+        input_ = input.contiguous()
+        weight_ = weight.contiguous()
+        bias_ = bias.contiguous()
+        output, mean, invvar = fused_mix_prec_layer_norm_cuda.forward_affine(
+            input_, ctx.normalized_shape, weight_, bias_, ctx.eps
+        )
+        ctx.save_for_backward(input_, weight_, bias_, mean, invvar)
 
-  @staticmethod
-  def forward(ctx, input, weight, bias, normalized_shape, eps):
+        return output
 
-    ctx.normalized_shape = normalized_shape
-    ctx.eps = eps
-    input_ = input.contiguous()
-    weight_ = weight.contiguous()
-    bias_ = bias.contiguous()
-    output, mean, invvar = fused_mix_prec_layer_norm_cuda.forward_affine(
-        input_, ctx.normalized_shape, weight_, bias_, ctx.eps)
-    ctx.save_for_backward(input_, weight_, bias_, mean, invvar)
+    @staticmethod
+    def backward(ctx, grad_output):
+        input_, weight_, bias_, mean, invvar = ctx.saved_tensors
+        grad_input = grad_weight = grad_bias = None
+        grad_input, grad_weight, grad_bias = fused_mix_prec_layer_norm_cuda.backward_affine(
+            grad_output.contiguous(),
+            mean,
+            invvar,
+            input_,
+            ctx.normalized_shape,
+            weight_,
+            bias_,
+            ctx.eps,
+        )
 
-    return output
-
-
-  @staticmethod
-  def backward(ctx, grad_output):
-
-    input_, weight_, bias_, mean, invvar = ctx.saved_tensors
-    grad_input = grad_weight = grad_bias = None
-    grad_input, grad_weight, grad_bias \
-      = fused_mix_prec_layer_norm_cuda.backward_affine(
-        grad_output.contiguous(), mean, invvar,
-        input_, ctx.normalized_shape,
-        weight_, bias_, ctx.eps)
-
-    return grad_input, grad_weight, grad_bias, None, None
-
+        return grad_input, grad_weight, grad_bias, None, None
 
 
 class MixedFusedLayerNorm(torch.nn.Module):
-
-  def __init__(self, normalized_shape, eps=1e-5):
+    def __init__(self, normalized_shape, eps=1e-5):
         super(MixedFusedLayerNorm, self).__init__()
 
         global fused_mix_prec_layer_norm_cuda
-        fused_mix_prec_layer_norm_cuda = importlib.import_module(
-          "fused_mix_prec_layer_norm_cuda")
+        fused_mix_prec_layer_norm_cuda = importlib.import_module("fused_mix_prec_layer_norm_cuda")
 
         if isinstance(normalized_shape, numbers.Integral):
             normalized_shape = (normalized_shape,)
@@ -77,19 +76,18 @@ class MixedFusedLayerNorm(torch.nn.Module):
         self.bias = Parameter(torch.Tensor(*normalized_shape))
         self.reset_parameters()
 
+    def reset_parameters(self):
+        init.ones_(self.weight)
+        init.zeros_(self.bias)
 
-  def reset_parameters(self):
-
-    init.ones_(self.weight)
-    init.zeros_(self.bias)
-
-
-  def forward(self, input):
-    # CPU path is here for unittest sake.
-    if not input.is_cuda:
-        print("WARNING! The input of FusedLayerNorm should be on the GPU."
-              "This warning should only be triggered in the FusedLayerNorm unit tests.")
-        return F.layer_norm(input, self.normalized_shape, self.weight, self.bias, self.eps)
-    return FusedLayerNormAffineFunction.apply(
-      input, self.weight, self.bias, self.normalized_shape,self.eps)
-
+    def forward(self, input):
+        # CPU path is here for unittest sake.
+        if not input.is_cuda:
+            print(
+                "WARNING! The input of FusedLayerNorm should be on the GPU."
+                "This warning should only be triggered in the FusedLayerNorm unit tests."
+            )
+            return F.layer_norm(input, self.normalized_shape, self.weight, self.bias, self.eps)
+        return FusedLayerNormAffineFunction.apply(
+            input, self.weight, self.bias, self.normalized_shape, self.eps
+        )

@@ -31,6 +31,7 @@ from megatron.utils import check_adlr_autoresume_termination
 from megatron.utils import average_losses_across_data_parallel_group
 from deepspeed.accelerator import get_accelerator
 
+
 def process_batch(batch):
     """Process batch and produce inputs for the model."""
     images = batch[0].to(get_accelerator().device_name()).contiguous()
@@ -158,7 +159,6 @@ def _train(
 
         # For all the batches in the dataset.
         for iteration_, batch in enumerate(train_dataloader):
-
             # Ignore the iterations before starting value
             if iteration_ < start_iteration:
                 continue
@@ -183,19 +183,11 @@ def _train(
             )
 
             # Autoresume
-            if args.adlr_autoresume and (
-                iteration % args.adlr_autoresume_interval == 0
-            ):
-                check_adlr_autoresume_termination(
-                    iteration, model, optimizer, lr_scheduler
-                )
+            if args.adlr_autoresume and (iteration % args.adlr_autoresume_interval == 0):
+                check_adlr_autoresume_termination(iteration, model, optimizer, lr_scheduler)
 
             # Checkpointing
-            if (
-                args.save
-                and args.save_interval
-                and iteration % args.save_interval == 0
-            ):
+            if args.save and args.save_interval and iteration % args.save_interval == 0:
                 save_checkpoint(iteration, model, optimizer, lr_scheduler)
 
             # Evaluation
