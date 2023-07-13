@@ -69,10 +69,11 @@ python -m torch.distributed.launch $DISTRIBUTED_ARGS \
   --clip-grad 1.0 \
   --lr-warmup-fraction .01 \
   --log-interval 1 \
-  --save-interval 300 \
+  --save-interval 8000 \
   --eval-interval 100 \
   --eval-iters 10 \
   --checkpoint-activations \
+  --use-cpu-initialization \
   $PARALLEL_ARGS \
   $TENSORBOARD_ARGS \
   --log-batch-size-to-tensorboard \
